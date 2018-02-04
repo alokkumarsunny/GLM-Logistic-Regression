@@ -1,0 +1,181 @@
+---
+title: "GLM"
+author: "Alok Kumar"
+date: "4 February 2018"
+output: 
+  pdf_document:
+      number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# GLM Introduction:
+
+In statistics, the generalized linear model (GLM) is a flexible generalization of ordinary linear regression that allows for response variables that have error distribution models other than a normal distribution.
+
+GLM have three components:
+1. Distribution of Responce variable. (y ~ exponential family)
+2. Linear predictor
+3. Link function
+
+# Experiment Details
+
+The data taken show the distribution of 1607 women interviewed in fiji fertility survey of 1975, classified by current age , level of education, desire for more children, and contraceptive use.
+
+```{r}
+data = read.table(".//Data//Cont by Age.txt" , head(T))
+attach(data)
+Prop = Using/Total
+plot(Age,Prop)
+```
+
+Converting data trom using and Total to using and not using.
+We are doing this for odd ratio.
+cbind - bind the two column and create matrix.
+```{r}
+y = cbind(Using, Total-Using)
+y
+```
+
+# One factor Model
+GLM in which only one factor exist.
+
+Logistic regression model for each age group using the y(parameter estimates calculated)
+
+```{r}
+g1 = "Group 1 (age < 25)" 
+g2 = "Group 2 (age 25 - 29)" 
+g3 = "Group 3 (age 30 - 39)" 
+g4 = "Group 4 (age 40 - 49)" 
+```
+
+```{r}
+glmOddvsAgeFactor = glm(y~factor(Age) , family = binomial(link = logit))
+
+```
+
+Systematic component:
+g(u) = log(p/1-p) = b0 + b1x1 + b2x2 + b3x3
+
+Random component :
+yi | x1,x2,x3 ~ B(n,p)
+where x1 if Age = 2 (25-29)
+      x2 if Age = 3 (30-39)
+      x3 if Age = 4 (40-49)
+      
+```{r}
+summary(glmOddvsAgeFactor)
+```
+
+## Odds of using contraception for each group
+Calculation logit(p) = coefficient
+
+logit(p) = log(p/1-p) = log(odd) = coefficient 
+
+odd = exp(coefficient)
+
+### Odd interpretation for `r g1`
+
+```{r}
+ageGroup1Odd = exp(glmOddvsAgeFactor$coefficients[1])
+ageGroup1Odd
+```
+
+Therefore odd of someone using contraceptive in `r g1` is `r ageGroup1Odd*100`%. 
+
+### Odd interpretation for `r g2`
+
+```{r}
+ageGroup2Odd = exp(glmOddvsAgeFactor$coefficients[1] + glmOddvsAgeFactor$coefficients[2])
+ageGroup2Odd
+```
+
+Therefore odd of someone using contraceptive in `r g2` is `r ageGroup2Odd*100`%. 
+
+### Odd interpretation for `r g3`
+
+```{r}
+ageGroup3Odd = exp(glmOddvsAgeFactor$coefficients[1] + glmOddvsAgeFactor$coefficients[3])
+ageGroup3Odd
+```
+
+Therefore odd of someone using contraceptive in `r g3` is `r ageGroup3Odd*100`%. 
+
+### Odd interpretation for `r g4`
+ 
+```{r}
+ageGroup4Odd = exp(glmOddvsAgeFactor$coefficients[1] + glmOddvsAgeFactor$coefficients[4])
+ageGroup4Odd
+```
+
+Therefore odd of someone using contraceptive in `r g4` is `r ageGroup4Odd*100`%. 
+
+## Inter group comparison
+
+### `r g2` in compare of `r g1`
+
+```{r}
+oddg2vsg1 = ageGroup2Odd/ageGroup1Odd
+oddg2vsg1Per = (oddg2vsg1 - 1)*100 
+
+
+```
+```{r echo=FALSE}
+moreOrLess = function(value){
+  if(value > 0){
+  return("more")
+  }else{
+  return("less")
+  }
+} 
+
+```
+
+
+
+`r g2` is `r oddg2vsg1Per` % `r moreOrLess(oddg2vsg1Per)` likely to use contraceptive then `r g1`
+
+
+### `r g3` in compare of `r g2`
+
+```{r}
+oddg3vsg2 = ageGroup3Odd/ageGroup2Odd
+oddg3vsg2Per = (oddg3vsg2 - 1)*100 
+
+
+```
+
+`r g3` is `r oddg3vsg2Per` % `r moreOrLess(oddg3vsg2Per)` likely to use contraceptive then `r g2` 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+
+
+
